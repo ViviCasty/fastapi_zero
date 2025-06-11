@@ -12,7 +12,7 @@ def test_root_deve_retornar_ola_mundo():
     Esse teste tem 3 etapas (AAA)
     - A: Arrange - Arranjo
     - A: Act - executa a coisa (o SUT)
-    - A: Assert - Garnat que A é A
+    - A: Assert - Garante que A é A
     """
     # Arrange
     client = TestClient(app)
