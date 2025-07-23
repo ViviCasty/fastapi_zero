@@ -3,7 +3,7 @@ from http import HTTPStatus
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 
-from fastapi_zero.schemas import Message
+from fastapi_zero.schemas import Message, UserSchema
 
 app = FastAPI(title='Api da vivi')
 
@@ -16,8 +16,8 @@ def read_root():
     # por padrão o fastapi sempre retorna json
 
 
-@app.get('/html', response_class=HTMLResponse)
-def read_root_html():
+@app.get('/exercicio-html', response_class=HTMLResponse)
+def exercicio_aula_02():
     return """
     <html>
       <head>
@@ -27,3 +27,8 @@ def read_root_html():
         <h1> Olá Mundo no html </h1>
       </body>
     </html>"""
+
+@app.post('/users/')
+def create_user(user: UserSchema):
+    ...
+
