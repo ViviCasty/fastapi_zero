@@ -3,9 +3,14 @@ from http import HTTPStatus
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 
-from fastapi_zero.schemas import Message, UserSchema
+from fastapi_zero.schemas import (Message, 
+                                  UserSchema,
+                                  UserPublic, 
+                                  UserDB)
 
 app = FastAPI(title='Api da vivi')
+
+database = []
 
 
 @app.get('/', status_code=HTTPStatus.OK, response_model=Message)
@@ -28,7 +33,18 @@ def exercicio_aula_02():
       </body>
     </html>"""
 
-@app.post('/users/')
+@app.post('/users/',
+          status_code=HTTPStatus.CREATED,
+          response_model=UserPublic
+          )
 def create_user(user: UserSchema):
-    ...
+    user_with_id = UserDB(
+        username= user.username,
+        email = user.email,
+        password= user.password,
+        id = len(database)+1
+    )
+    database.append(user_with_id)
+    #user é um objeto
+    return user_with_id
 
