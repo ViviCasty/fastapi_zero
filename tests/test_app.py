@@ -1,13 +1,7 @@
 from http import HTTPStatus
 
-from fastapi.testclient import TestClient
 
-from fastapi_zero.app import app
-
-client = TestClient(app)
-
-
-def test_root_deve_retornar_ola_mundo():
+def test_root_deve_retornar_ola_mundo(client):
     """
     Esse teste tem 3 etapas (AAA)
     - A: Arrange - Arranjo
@@ -15,7 +9,7 @@ def test_root_deve_retornar_ola_mundo():
     - A: Assert - Garante que A é A
     """
     # Arrange
-    client = TestClient(app)
+    # TestClient(app)
 
     # Act
     response = client.get('/')
@@ -25,9 +19,25 @@ def test_root_deve_retornar_ola_mundo():
     assert response.status_code == HTTPStatus.OK
 
 
-def teste_exercicio_ola_mundo_em_html():
-    client = TestClient(app)
-
+def teste_exercicio_ola_mundo_em_html(client):
     response = client.get('/exercicio-html')
     assert response.status_code == HTTPStatus.OK
     assert '<h1> Olá Mundo no html </h1>' in response.text
+
+
+def test_create_user(client):
+    response = client.post(
+        '/users/',
+        json={
+            'username': 'Alice',
+            'email': 'alice@example.com',
+            'password': 'secret',
+        },
+    )
+
+    assert response.status_code == HTTPStatus.CREATED
+    assert response.json() == {
+        'id': 1,
+        'email': 'alice@example.com',
+        'username': 'Alice',
+    }
