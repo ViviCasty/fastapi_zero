@@ -1,10 +1,9 @@
 from dataclasses import asdict
+from datetime import datetime
 
 from sqlalchemy import select
 
 from fastapi_zero.models import User
-
-from datetime import datetime
 
 
 def test_create_user(session, mock_db_time):
@@ -26,4 +25,5 @@ def test_create_user(session, mock_db_time):
         'email': 'test@gmail.com',
         'password': 'secrets',
         'created_at': time,
+        'updated_at': time,
     }
