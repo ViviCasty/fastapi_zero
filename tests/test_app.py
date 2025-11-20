@@ -1,5 +1,7 @@
 from http import HTTPStatus
 
+from fastapi_zero.schemas import UserPublic
+
 
 def test_root_deve_retornar_ola_mundo(client):
     """
@@ -27,19 +29,18 @@ def teste_exercicio_ola_mundo_em_html(client):
 
 def test_create_user(client):
     response = client.post(
-        '/users/',
+        '/users',
         json={
-            'username': 'Alice',
+            'username': 'alice',
             'email': 'alice@example.com',
             'password': 'secret',
         },
     )
-
     assert response.status_code == HTTPStatus.CREATED
     assert response.json() == {
-        'id': 1,
+        'username': 'alice',
         'email': 'alice@example.com',
-        'username': 'Alice',
+        'id': 1,
     }
 
 
@@ -47,15 +48,13 @@ def test_read_users(client):
     response = client.get('/users/')
 
     assert response.status_code == HTTPStatus.OK
-    assert response.json() == {
-        'users': [
-            {
-                'id': 1,
-                'email': 'alice@example.com',
-                'username': 'Alice',
-            },
-        ]
-    }
+    assert response.json() == {'users': []}
+
+
+def test_read_users_with_users(client, user):
+    user_schema = UserPublic.model_validate(user).model_dump()
+    response = client.get('/users/')
+    assert response.json() == {'users': [user_schema]}
 
 
 def test_read_one_user(client):
@@ -75,7 +74,7 @@ def test_read_one_user_not_found(client):
     assert response.status_code == HTTPStatus.NOT_FOUND
 
 
-def test_update_user(client):
+def test_update_user(client, user):
     response = client.put(
         '/users/1',
         json={
