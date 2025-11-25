@@ -3,6 +3,7 @@ from http import HTTPStatus
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from fastapi_zero.database import get_session
@@ -95,11 +96,17 @@ def update_user(
             status_code=HTTPStatus.NOT_FOUND, detail='User not found!'
         )
 
-    db_user.username = user.username
-    db_user.password = user.password
-    db_user.email = user.email
-    session.commit()
-    session.refresh(db_user)
+    try:
+        db_user.username = user.username
+        db_user.password = user.password
+        db_user.email = user.email
+        session.commit()
+        session.refresh(db_user)
+    except IntegrityError:
+        raise HTTPException(
+            status_code=HTTPStatus.CONFLICT,
+            detail='Username or Email already exists',
+        )
 
     return db_user
 
@@ -107,12 +114,18 @@ def update_user(
 @app.delete(
     '/users/{user_id}', status_code=HTTPStatus.OK, response_model=UserPublic
 )
-def delete_user(user_id: int):
-    if user_id < 1 or user_id > len(database):
+def delete_user(user_id: int, session: Session = Depends(get_session)):
+    db_user = session.scalar(select(User).where(User.id == user_id))
+
+    if not db_user:
         raise HTTPException(
-            status_code=HTTPStatus.NOT_FOUND, detail='User not found!'
+            status_code=HTTPStatus.NOT_FOUND, detail='User not found'
         )
-    return database.pop(user_id - 1)
+
+    session.delete(db_user)
+    session.commit()
+
+    return {'message': 'User deleted'}
 
 
 @app.get(

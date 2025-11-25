@@ -2,9 +2,6 @@ from http import HTTPStatus
 
 from fastapi_zero.schemas import UserPublic
 
-from sqlalchemy.exc import IntegrityError
-
-
 
 def test_root_deve_retornar_ola_mundo(client):
     """
@@ -127,16 +124,16 @@ def test_update_integrity_error(client, user):
         },
     )
 
+    assert response_update.status_code == HTTPStatus.CONFLICT
+    assert response_update.json() == {
+        'detail': 'Username or Email already exists'
+    }
+
 
 def test_delete_user(client):
     response = client.delete('/users/1')
-
     assert response.status_code == HTTPStatus.OK
-    assert response.json() == {
-        'username': 'bob',
-        'email': 'bob@example.com',
-        'id': 1,
-    }
+    assert response.json() == {'message': 'User deleted'}
 
 
 def test_delete_user_not_found(client):
