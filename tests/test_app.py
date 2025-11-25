@@ -57,12 +57,13 @@ def test_read_users_with_users(client, user):
     assert response.json() == {'users': [user_schema]}
 
 
-# def test_read_one_user(client, user):
-#    user_schema = UserPublic.model_validate(user).model_dump()
-#    response = client.get('/users/1')
-#    assert response.status_code == HTTPStatus.OK
-#    assert response.json() == asdict(user_schema)
-#    #TODO ajustar esse teste
+def test_read_one_user(client, user):
+    user_schema = UserPublic.model_validate(user).model_dump()
+
+    response = client.get('/users/1')
+
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == user_schema
 
 
 def test_read_one_user_not_found(client):
@@ -130,7 +131,9 @@ def test_update_integrity_error(client, user):
     }
 
 
-def test_delete_user(client):
+def test_delete_user(client, user):
+    UserPublic.model_validate(user).model_dump()
+
     response = client.delete('/users/1')
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {'message': 'User deleted'}
