@@ -44,6 +44,36 @@ def test_create_user(client):
     }
 
 
+def test_create_user_already_exist(client, user):
+    # user_schema = UserPublic.model_validate(user).model_dump()
+    #UserPublic.model_validate(user).model_dump()
+    response = client.post(
+        '/users',
+        json={
+            'username': user.username,
+            'email': 'testezin@test.com',
+            'password': 'testtest1',
+        },
+    )
+    assert response.status_code == HTTPStatus.CONFLICT
+    assert 'Username already exists' in response.text
+
+
+def test_create_email_already_exist(client, user):
+    #UserPublic.model_validate(user).model_dump()
+    response = client.post(
+        '/users',
+        json={
+            'username': 'Ana',
+            'email': user.email,
+            'password': 'anatest',
+        },
+    )
+    # breakpoint()
+    assert response.status_code == HTTPStatus.CONFLICT
+    assert 'Email already exists' in response.text
+
+
 def test_read_users(client):
     response = client.get('/users/')
 
@@ -70,6 +100,7 @@ def test_read_one_user_not_found(client):
     response = client.get('/users/2')
 
     assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json() == {'detail': 'User not found'}
 
 
 def test_update_user(client, user):
@@ -101,7 +132,7 @@ def test_update_user_not_found(client):
     )
 
     assert response.status_code == HTTPStatus.NOT_FOUND
-    assert 'User not found!' in response.text
+    assert 'User not found' in response.text
 
 
 def test_update_integrity_error(client, user):
@@ -141,9 +172,6 @@ def test_delete_user(client, user):
 
 def test_delete_user_not_found(client):
     response = client.delete('/users/1')
-
+    # breakpoint()
     assert response.status_code == HTTPStatus.NOT_FOUND
-    assert 'User not found!' in response.text
-
-
-# TODO melting, testes são interdependentes por enquanto
+    assert 'User not found' in response.text
